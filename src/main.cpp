@@ -98,10 +98,10 @@ void loop() {
     //y = 250;
     //move_leg_to_pos(x, y, 0);
     //delay(5000);
-    for (byte channel = 1; channel <= numChannels; ++channel) {
-        unsigned value = ppm.latestValidChannelValue(channel, 0);
-        Serial.print(String(value) + "\t");
-    }
-    Serial.println();
-    delay(20);
+    //for (byte channel = 1; channel <= numChannels; ++channel) {
+    //    unsigned value = ppm.latestValidChannelValue(channel, 0);
+    //    Serial.print(String(value) + "\t");
+    //}
+    //Serial.println();
+    //delay(20);
 }
