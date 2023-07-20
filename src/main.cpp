@@ -1,6 +1,12 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include <Ramp.h>
+#include <PPMReader.h>
+
+byte ppmPin = 3;
+byte numChannels = 10;
+
+PPMReader ppm(ppmPin, numChannels);
 
 #define HIP_SERVO_PIN0 3
 #define KNEE_SERVO_PIN0 5
@@ -43,14 +49,20 @@ void move_leg_to_pos(double x, double y, int leg_num){
 }
 
 
-void step_fsm(double cur_x, double cur_y, double *target_x, double *target_y, double *prev_target_x, double *prev_target_y, int* state){
-    if (*state == 0){
-        if (abs(cur_x - 50) < 2 && abs(cur_y - 150) < 2){
+void step_fsm(double cur_x, double cur_y, double *target_x, double *target_y, double *prev_target_x, double *prev_target_y, int* state, const int step_length, const int step_height){
+    if (abs(cur_x - *target_x) < 2 && abs(cur_y - *target_y) < 2) {
+        if (*state == 0) { // Bring foot to start of step powerstroke
             *state++;
-            *prev_target_x = 50;
-            *prev_target_y = 150;
-            *target_x = -50;
-            *target_y = 150;
+            //*prev_target_x = (float) step_length / 2;
+            //*prev_target_y = step_height;
+            *target_x = (float) step_length / 2;
+            *target_y = step_height;
+        } else if (*state == 1) { // Slide foot backwards
+            *state++;
+            *prev_target_x = *target_x;
+            *prev_target_y = *target_y;
+            *target_x = -(float) step_length / 2;
+            *target_y = step_height;
         }
     }
 }
@@ -67,23 +79,29 @@ void setup() {
     // Get Startup Angles
     double start_x = 0;
     double start_y = 150;
-    Serial.begin(9600);
+    Serial.begin(115200);
     // Attach Servos
-    hip_servos[0].attach(HIP_SERVO_PIN0);
-    knee_servos[0].attach(KNEE_SERVO_PIN0);
+    //hip_servos[0].attach(HIP_SERVO_PIN0);
+    //knee_servos[0].attach(KNEE_SERVO_PIN0);
 
     // Move to start pos
-    move_leg_to_pos(start_x, start_y, 0);
-    delay(10000);
+    //move_leg_to_pos(start_x, start_y, 0);
+    //delay(10000);
 }
 
 void loop() {
     double x = 0;
     double y = 100;
-    move_leg_to_pos(x, y, 0);
-    delay(5000);
-    x = 0;
-    y = 250;
-    move_leg_to_pos(x, y, 0);
-    delay(5000);
+    //move_leg_to_pos(x, y, 0);
+    //delay(5000);
+    //x = 0;
+    //y = 250;
+    //move_leg_to_pos(x, y, 0);
+    //delay(5000);
+    for (byte channel = 1; channel <= numChannels; ++channel) {
+        unsigned value = ppm.latestValidChannelValue(channel, 0);
+        Serial.print(String(value) + "\t");
+    }
+    Serial.println();
+    delay(20);
 }
