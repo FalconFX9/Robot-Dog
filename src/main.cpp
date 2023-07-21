@@ -63,6 +63,17 @@ void step_fsm(double cur_x, double cur_y, double *target_x, double *target_y, do
             *prev_target_y = *target_y;
             *target_x = -(float) step_length / 2;
             *target_y = step_height;
+        } else if (*state == 2){ // Bring foot forwards and up 5 cm
+            *state++;
+            *prev_target_x = *target_x;
+            *prev_target_y = *target_y;
+            *target_x = 0;
+            *target_y = step_height - 50;
+        }else if (*state == 3){ // Bring foot above step positiongit 
+            *state = 0;
+            *prev_target_x = *target_x;
+            *prev_target_y = *target_y;
+            *target_x = (float) step_length / 2;
         }
     }
 }
