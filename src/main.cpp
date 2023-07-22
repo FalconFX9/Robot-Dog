@@ -2,6 +2,7 @@
 #include <Servo.h>
 #include <Ramp.h>
 #include <PPMReader.h>
+#include <interpolation.cpp>
 
 byte ppmPin = 3;
 byte numChannels = 10;
