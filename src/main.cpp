@@ -96,20 +96,22 @@ void setup() {
     // Get Startup Angles
     double start_x = 0;
     double start_y = 150;
-    Serial.begin(115200);
+    //Serial.begin(115200);
     // Attach Servos
-    //hip_servos[0].attach(HIP_SERVO_PIN0);
-    //knee_servos[0].attach(KNEE_SERVO_PIN0);
+    hip_servos[0].attach(HIP_SERVO_PIN0);
+    knee_servos[0].attach(KNEE_SERVO_PIN0);
 
     // Move to start pos
-    //move_leg_to_pos(start_x, start_y, 0);
-    //delay(10000);
+    move_leg_to_pos(start_x, start_y, 0);
+    x = start_x;
+    y = start_y;
+    delay(10000);
 }
 
 void loop() {
-    for (byte channel = 1; channel <= numChannels; ++channel) {
-            unsigned value = ppm.latestValidChannelValue(channel, 0);
-    }
+    //for (byte channel = 1; channel <= numChannels; ++channel) {
+    //        unsigned value = ppm.latestValidChannelValue(channel, 0);
+    //}
     unsigned int interp_speed = map(ppm.latestValidChannelValue(5, 0), 500, 100, 1000, 2000);
     step_fsm(x, y, &tar_x, &tar_y, &ptar_x, &ptar_y, &step_state, 100, 150);
     x = interpX.go((int)tar_x, interp_speed);
