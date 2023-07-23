@@ -2,11 +2,15 @@
 
 class Interpolation {
     public:
-        rampInt myRamp;
+        rampDouble myRamp;
         int interpFlag = 0;
-        int prev_value;
+        double prev_value;
 
-        int go(int input, unsigned long duration){
+        Interpolation() {
+            myRamp.setGrain(1);
+        }
+
+        double go(double input, unsigned long duration){
             
             if (input != prev_value){
                 interpFlag = 0;
@@ -16,6 +20,7 @@ class Interpolation {
                 myRamp.go(input, duration, LINEAR, ONCEFORWARD);
                 interpFlag = 1;
             }
-            return myRamp.update();
+            myRamp.update();
+            return myRamp.getValue();
         }
 };

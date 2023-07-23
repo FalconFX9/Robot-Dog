@@ -9,7 +9,7 @@ byte numChannels = 10;
 
 PPMReader ppm(ppmPin, numChannels);
 
-#define HIP_SERVO_PIN0 3
+#define HIP_SERVO_PIN0 6
 #define KNEE_SERVO_PIN0 5
 
 short int ULL = 150;
@@ -56,27 +56,27 @@ void move_leg_to_pos(double xf, double yf, int leg_num){
 
 
 void step_fsm(double cur_x, double cur_y, double *target_x, double *target_y, double *prev_target_x, double *prev_target_y, int* state, const int step_length, const int step_height){
-    if (abs(cur_x - *target_x) < 2 && abs(cur_y - *target_y) < 2) {
+    if ((abs(cur_x - *target_x) < 10) && (abs(cur_y - *target_y) < 10)) {
         if (*state == 0) { // Bring foot to start of step powerstroke
-            *state++;
+            (*state)++;
             *prev_target_x = *target_x;
             *prev_target_y = *target_y;
             *target_x = (float) step_length / 2;
             *target_y = step_height;
         } else if (*state == 1) { // Slide foot backwards
-            *state++;
+            (*state)++;
             *prev_target_x = *target_x;
             *prev_target_y = *target_y;
             *target_x = -(float) step_length / 2;
             *target_y = step_height;
         } else if (*state == 2){ // Bring foot forwards and up 5 cm
-            *state++;
+            (*state)++;
             *prev_target_x = *target_x;
             *prev_target_y = *target_y;
             *target_x = 0;
             *target_y = step_height - 50;
         }else if (*state == 3){ // Bring foot above step positiongit 
-            *state = 0;
+            (*state) = 0;
             *prev_target_x = *target_x;
             *prev_target_y = *target_y;
             *target_x = (float) step_length / 2;
@@ -96,7 +96,7 @@ void setup() {
     // Get Startup Angles
     double start_x = 0;
     double start_y = 150;
-    //Serial.begin(115200);
+    Serial.begin(115200);
     // Attach Servos
     hip_servos[0].attach(HIP_SERVO_PIN0);
     knee_servos[0].attach(KNEE_SERVO_PIN0);
@@ -112,9 +112,14 @@ void loop() {
     //for (byte channel = 1; channel <= numChannels; ++channel) {
     //        unsigned value = ppm.latestValidChannelValue(channel, 0);
     //}
-    unsigned int interp_speed = map(ppm.latestValidChannelValue(5, 0), 500, 100, 1000, 2000);
-    step_fsm(x, y, &tar_x, &tar_y, &ptar_x, &ptar_y, &step_state, 100, 150);
-    x = interpX.go((int)tar_x, interp_speed);
-    y = interpY.go((int)tar_y, interp_speed);
+    //unsigned int interp_speed = map(ppm.latestValidChannelValue(5, 0), 1000, 2000, 500, 100);
+    unsigned int interp_speed = 1000;
+    step_fsm(x, y, &tar_x, &tar_y, &ptar_x, &ptar_y, &step_state, 150, 150);
+    x = interpX.go(tar_x, interp_speed);
+    y = interpY.go(tar_y, interp_speed);
     move_leg_to_pos(x, y, 0);
+    Serial.println("Current state:");
+    Serial.println(step_state);
+    Serial.println(x);
+    Serial.println(y);
 }
