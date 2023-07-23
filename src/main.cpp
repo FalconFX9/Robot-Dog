@@ -20,6 +20,11 @@ Servo knee_servos[4];
 const int hip_offsets[] = {90};
 const int knee_offsets[] = {50};
 
+Interpolation interpX;
+Interpolation interpY;
+int step_state = 0;
+double x, y, tar_x, tar_y, ptar_x, ptar_y;
+
 void forward_kinematics(double theta1, double theta2, double *xf, double *yf) {
     *xf = -cos(theta1) * (double)ULL + sin(theta2) * (double)LLL;
     *yf = sin(theta1) * (double)ULL + cos(theta2) * (double)LLL;
@@ -41,8 +46,8 @@ void inverse_kinematics(double xf, double yf, double *theta1, double *theta2, do
 }
 
 
-void move_leg_to_pos(double x, double y, int leg_num){
-    inverse_kinematics(x, y, &t1, &t2, &added_angle);
+void move_leg_to_pos(double xf, double yf, int leg_num){
+    inverse_kinematics(xf, yf, &t1, &t2, &added_angle);
     int micros = (int)map((long)((double)hip_offsets[leg_num] + degrees(t1)), 0, 180, 500, 2500);
     hip_servos[leg_num].writeMicroseconds(micros);
     micros = (int)map((int)((double)knee_offsets[leg_num] + degrees(t2)), 0, 180, 500, 2500);
@@ -102,18 +107,12 @@ void setup() {
 }
 
 void loop() {
-    double x = 0;
-    double y = 100;
-    //move_leg_to_pos(x, y, 0);
-    //delay(5000);
-    //x = 0;
-    //y = 250;
-    //move_leg_to_pos(x, y, 0);
-    //delay(5000);
-    //for (byte channel = 1; channel <= numChannels; ++channel) {
-    //    unsigned value = ppm.latestValidChannelValue(channel, 0);
-    //    Serial.print(String(value) + "\t");
-    //}
-    //Serial.println();
-    //delay(20);
+    for (byte channel = 1; channel <= numChannels; ++channel) {
+            unsigned value = ppm.latestValidChannelValue(channel, 0);
+    }
+    unsigned int interp_speed = map(ppm.latestValidChannelValue(5, 0), 150, 10, 1000, 2000);
+    step_fsm(x, y, &tar_x, &tar_y, &ptar_x, &ptar_y, &step_state, 100, 150);
+    x = interpX.go((int)tar_x, interp_speed);
+    y = interpY.go((int)tar_y, interp_speed);
+    move_leg_to_pos(x, y, 0);
 }
