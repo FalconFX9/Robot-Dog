@@ -54,8 +54,8 @@ void step_fsm(double cur_x, double cur_y, double *target_x, double *target_y, do
     if (abs(cur_x - *target_x) < 2 && abs(cur_y - *target_y) < 2) {
         if (*state == 0) { // Bring foot to start of step powerstroke
             *state++;
-            //*prev_target_x = (float) step_length / 2;
-            //*prev_target_y = step_height;
+            *prev_target_x = *target_x;
+            *prev_target_y = *target_y;
             *target_x = (float) step_length / 2;
             *target_y = step_height;
         } else if (*state == 1) { // Slide foot backwards
