@@ -110,7 +110,7 @@ void loop() {
     for (byte channel = 1; channel <= numChannels; ++channel) {
             unsigned value = ppm.latestValidChannelValue(channel, 0);
     }
-    unsigned int interp_speed = map(ppm.latestValidChannelValue(5, 0), 150, 10, 1000, 2000);
+    unsigned int interp_speed = map(ppm.latestValidChannelValue(5, 0), 500, 100, 1000, 2000);
     step_fsm(x, y, &tar_x, &tar_y, &ptar_x, &ptar_y, &step_state, 100, 150);
     x = interpX.go((int)tar_x, interp_speed);
     y = interpY.go((int)tar_y, interp_speed);
